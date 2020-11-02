@@ -1,10 +1,15 @@
-import React, {useState} from 'react';
-import {db} from '../firebase'
+import React, {useState, useEffect} from 'react';
+import {connect} from 'react-redux';
+import {getNotes,saveNote} from '../actions/notesAction';
 
-function App() {
+function App({getNotes,saveNote}) {
+ 
   const [input,setInput] = useState({title:'', body:'',notes:{}});
   const [loader,setLoader] = useState(false);
 
+useEffect(() => {
+  getNotes();
+},[getNotes])
 
   function handleChange(e) {
     setInput({
@@ -22,7 +27,7 @@ function handleSubmit(e){
         title:input.title,
         body:input.body
       }
-      db.push(note)
+      saveNote(note)
       .then(()=> { alert('Message sent!');setLoader(false); })
       .catch(error => {  alert(error.message);setLoader(false); });
       setInput({title:'',body:''});
@@ -65,7 +70,13 @@ function handleSubmit(e){
       </div>     
     </div>
     </>
-  );
+  )
 }
 
-export default App;
+const mapStateToProps = (state,ownProps) => {
+  return {
+    notes:state.notes
+  }
+}
+
+export default connect(mapStateToProps,{getNotes,saveNote})(App);
